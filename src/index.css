@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 120 20% 98%;
+    --foreground: 210 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 25% 15%;
+
+    --primary: 142 55% 38%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 60% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 120 15% 94%;
+    --muted-foreground: 210 10% 45%;
+
+    --accent: 38 90% 55%;
+    --accent-foreground: 210 25% 15%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 120 10% 88%;
+    --input: 120 10% 88%;
+    --ring: 142 55% 38%;
+
+    --radius: 1rem;
+
+    --success: 142 70% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 90% 55%;
+    --warning-foreground: 210 25% 15%;
+    --info: 210 60% 50%;
+    --info-foreground: 0 0% 100%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 210 25% 8%;
+    --foreground: 120 10% 95%;
+    --card: 210 20% 12%;
+    --card-foreground: 120 10% 95%;
+    --popover: 210 20% 12%;
+    --popover-foreground: 120 10% 95%;
+    --primary: 142 55% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 60% 55%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 15% 18%;
+    --muted-foreground: 210 10% 60%;
+    --accent: 38 90% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 15% 22%;
+    --input: 210 15% 22%;
+    --ring: 142 55% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Noto Sans', sans-serif;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    @apply bg-gradient-to-br from-primary to-emerald-600;
+  }
+  .gradient-hero {
+    background: linear-gradient(135deg, hsl(142 55% 38%) 0%, hsl(160 50% 40%) 50%, hsl(210 60% 50%) 100%);
+  }
+  /* Rich photo-quality hero — layered mesh gradient with Indian-atmosphere depth */
+  .hero-photo {
+    background-color: #0b1a2c;
+    background-image:
+      /* saffron sunrise top-left */
+      radial-gradient(ellipse 70% 55% at -5% -10%, #d4700640 0%, transparent 60%),
+      /* warm amber mid */
+      radial-gradient(ellipse 50% 40% at 30% 0%,   #f59e0b28 0%, transparent 55%),
+      /* emerald forest mid-right */
+      radial-gradient(ellipse 60% 60% at 110% 40%, #059a5030 0%, transparent 60%),
+      /* indigo dusk bottom */
+      radial-gradient(ellipse 80% 50% at 50% 120%,  #312e8140 0%, transparent 55%),
+      /* base atmospheric gradient */
+      linear-gradient(160deg, #0d1f35 0%, #0f2744 35%, #0e2240 60%, #0d1b33 100%);
+  }
+  .shadow-card {
+    box-shadow: 0 2px 12px -2px hsl(142 55% 38% / 0.1), 0 1px 4px -1px hsl(0 0% 0% / 0.06);
+  }
+  .shadow-card-hover {
+    box-shadow: 0 8px 24px -4px hsl(142 55% 38% / 0.15), 0 2px 8px -2px hsl(0 0% 0% / 0.08);
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
