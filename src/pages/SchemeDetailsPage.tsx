@@ -1,16 +1,31 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, ExternalLink, Users, Calendar, Building2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ExternalLink, Users, Calendar, Building2, Zap, Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getSchemeById } from "@/data/schemes";
+import { useToast } from "@/hooks/use-toast";
+
+// Schemes that support browser automation (via local automation server)
+const AUTO_FILL_CONFIG: Record<string, { endpoint: string; label: string }> = {
+  "pm-kisan": {
+    endpoint: "/apply/pm-kisan",
+    label: "Auto-Fill Aadhaar & State",
+  },
+};
+
+const AUTOMATION_SERVER = "http://localhost:3001";
 
 const SchemeDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { language, t } = useLanguage();
+  const { toast } = useToast();
+  const [autoFilling, setAutoFilling] = useState(false);
 
   const scheme = getSchemeById(id ?? "");
   const isHi = language === "hi";
+  const autoFill = id ? AUTO_FILL_CONFIG[id] : undefined;
 
   if (!scheme) {
     return (
@@ -25,6 +40,29 @@ const SchemeDetailsPage = () => {
   }
 
   const handleApply = () => window.open(scheme.applyUrl, "_blank", "noopener,noreferrer");
+
+  const handleAutoFill = async () => {
+    if (!autoFill) return;
+    setAutoFilling(true);
+    try {
+      // Check if automation server is running
+      await fetch(`${AUTOMATION_SERVER}/health`, { signal: AbortSignal.timeout(2500) });
+      // Trigger automation
+      await fetch(`${AUTOMATION_SERVER}${autoFill.endpoint}`, { method: "POST" });
+      toast({
+        title: "⚡ Browser opening!",
+        description: "Aadhaar + State auto-filled. Solve the CAPTCHA to get your OTP.",
+      });
+    } catch {
+      toast({
+        title: "Start the automation server first",
+        description: "Run in a new terminal:  node scripts/automate-server.cjs",
+        variant: "destructive",
+      });
+    } finally {
+      setAutoFilling(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-28">
@@ -136,17 +174,56 @@ const SchemeDetailsPage = () => {
         </section>
 
         {/* Apply CTA */}
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          onClick={handleApply}
-          className={`flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r ${scheme.colorGradient} py-4 text-base font-bold text-white shadow-xl transition-transform active:scale-[0.98]`}
-        >
-          {t("applyNow")} — Official Portal
-          <ExternalLink className="h-5 w-5" />
-        </motion.button>
-        <p className="pb-4 text-center text-xs text-muted-foreground">
-          You'll be redirected to the official government portal
-        </p>
+        <div className="space-y-3">
+
+          {/* AI Auto-Fill — shown only for supported schemes (pm-kisan) */}
+          {autoFill && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="overflow-hidden rounded-2xl border border-amber-400/40 bg-amber-50 dark:bg-amber-950/20 p-4"
+            >
+              <div className="mb-2 flex items-center gap-2">
+                <Zap className="h-4 w-4 text-amber-500" />
+                <span className="text-sm font-bold text-amber-700 dark:text-amber-400">
+                  AI-Assisted Application
+                </span>
+              </div>
+              <p className="mb-3 text-xs leading-relaxed text-amber-700/80 dark:text-amber-300/70">
+                Opens the official PM Kisan portal and <strong>auto-fills Aadhaar (98765432100)</strong>{" "}
+                and state <strong>(Madhya Pradesh)</strong>. You only solve the CAPTCHA.
+              </p>
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={handleAutoFill}
+                disabled={autoFilling}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-amber-600 disabled:opacity-60"
+              >
+                {autoFilling ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Opening browser…</>
+                ) : (
+                  <><Zap className="h-4 w-4" /> {autoFill.label}</>
+                )}
+              </motion.button>
+              <p className="mt-2 text-center text-[10px] text-amber-600/50">
+                Needs automation server running · <code className="font-mono">node scripts/automate-server.cjs</code>
+              </p>
+            </motion.div>
+          )}
+
+          {/* Standard button — always shown */}
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={handleApply}
+            className={`flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r ${scheme.colorGradient} py-4 text-base font-bold text-white shadow-xl transition-transform active:scale-[0.98]`}
+          >
+            {t("applyNow")} — Official Portal
+            <ExternalLink className="h-5 w-5" />
+          </motion.button>
+          <p className="pb-4 text-center text-xs text-muted-foreground">
+            You'll be redirected to the official government portal
+          </p>
+        </div>
       </div>
     </div>
   );
